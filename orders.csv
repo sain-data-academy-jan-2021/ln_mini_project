@@ -1,0 +1,2 @@
+customer_name, customer_address, customer_number, courier_name, status, item codes
+John, "33 Holborn, London, EC1N 2HT", 07988888888, Jake, preparing, x
