@@ -1,5 +1,6 @@
 # order = input('What would you like to order or 0 to exit').title()
 # pr
+print('Hi')
 
 # totalCost = 0
 # while order!='q':
