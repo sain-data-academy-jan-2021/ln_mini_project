@@ -21,6 +21,8 @@ connection = pymysql.connect(
 )
 cursor = connection.cursor()
 
+newbranch = practice
+
 def clear_terminal():
     os.system('clear')
 def exit_app():
