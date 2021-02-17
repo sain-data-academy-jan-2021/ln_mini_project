@@ -1,6 +1,4 @@
-import os
-import pymysql
-import csv
+import os,pymysql,csv
 from time import sleep
 #from functions import *
 #from mysql_copy import *
