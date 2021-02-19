@@ -1,3 +1,4 @@
-Database_setup/.venv/
 .venv/
 .vscode/
+Database_setup/.venv/
+__pycache__/
