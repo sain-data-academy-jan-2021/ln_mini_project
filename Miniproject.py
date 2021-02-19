@@ -1,7 +1,9 @@
-import os,pymysql,csv
+import os
+import csv
 from time import sleep
-#from functions import *
-#from mysql_copy import *
+# #from functions import *
+# #from mysql_copy import *
+import pymysql
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -18,8 +20,6 @@ connection = pymysql.connect(
   database
 )
 cursor = connection.cursor()
-
-newbranch = practice
 
 def clear_terminal():
     os.system('clear')
@@ -69,7 +69,6 @@ def print_all(table):
     if table == 'Products':
         for row in rows:
             print(f'Product ID: {str(row[0])}, Product Name: {row[1]}, Product Type: {row[2]}, Unit: {row[3]}, Price: {row[4]}')
-
     choice = input('Press 0 to return to main menu')
     if choice == '0':
         main_menu_input()
@@ -245,9 +244,9 @@ elif option == '2':
         print('Invalid selection. Please choose again')
         
 
-#elif option == '3':
-    #     option = ''
-    #     option = menu_input(order)
+elif option == '3':
+         option = ''
+         option = menu_input(order)
     #     if option == '1':
     #        print(orders)
     #     elif option == '2': #CREATE NEW ORDER
