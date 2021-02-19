@@ -2,7 +2,7 @@ import os
 from time import sleep
 from funcs_prod_courier import *
 from orderhandling import *
-from display import *
+from display_functions import *
 import pymysql
 from dotenv import load_dotenv
 
