@@ -26,7 +26,7 @@ def clear_terminal():
 def exit_app():
     border = len('Thanks for stopping by Jammed Packed Lunches! See you soon.') * '*'
     print('\n' + border)
-    print('Thanks for stopping by JAM\'D PACKED LUNCHES! See you soon.')
+    print('Thanks for stopping by at JAM\'D PACKED LUNCHES! See you soon.')
     print(border + '\n')
     connection.close()
     exit()
