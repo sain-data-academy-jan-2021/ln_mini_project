@@ -1,4 +1,4 @@
-import os, pymysql, csv
+import os, pymysql
 from time import sleep
 #from functions import *
 #from mysql_copy import *
@@ -216,26 +216,26 @@ def update_entry(table, item_type, column1, column2): #table, item_type, need er
 
 
 
-# banner()
-# print('Loading main menu...')
-# sleep(3)
+banner()
+print('Loading main menu...')
+sleep(3)
 
-# option = main_menu_input()
-# if option == '1':
-#     option = ''
-#     option = menu_input('Product')
-#     if option == '1':
-#         print_all('Products')
-#     elif option == '2':
-#         add_entry ('Products')
-#     elif option == '3':
-#         update_entry('Products', 'product', 'prod_name', 'prod_name')
-#     elif option == '4':
-#         delete_entry('Products', 'product', 'prod_name') 
-#     elif option == '0':
-#         main_menu_input()
-#     else:
-#         print('Invalid selection. Please choose again')
+option = main_menu_input()
+if option == '1':
+    option = ''
+    option = menu_input('Product')
+    if option == '1':
+        print_all('Products')
+    elif option == '2':
+        add_entry ('Products')
+    elif option == '3':
+        update_entry('Products', 'product', 'prod_name', 'prod_name')
+    elif option == '4':
+        delete_entry('Products', 'product', 'prod_name') 
+    elif option == '0':
+        main_menu_input()
+    else:
+        print('Invalid selection. Please choose again')
 
 # elif option == '2':
 #     option = ''
