@@ -1,6 +1,7 @@
 import pymysql
 from dotenv import load_dotenv
 import os
+from tabulate import tabulate
 
 load_dotenv()
 host = os.environ.get("mysql_host")
@@ -147,6 +148,14 @@ def update_entry(table, item_type, column1, column2): #table, item_type, need er
             break
         else:
             continue
-
-
+# ----------------------------
+def print_drinks_db():
+    cursor.execute("SELECT * FROM Products where prod_type = 'Drink'")
+    myresult = cursor.fetchall()
+    print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
+# -------------------------------------------------
+def print_food_db():
+    cursor.execute("SELECT * FROM Products where prod_type = 'Food'")
+    myresult = cursor.fetchall()
+    print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
 
