@@ -186,6 +186,18 @@ print_courier_table()
 
     # cursor.close()
     # connection.commit()
+        else:
+            continue
+# ----------------------------
+def print_drinks_db():
+    cursor.execute("SELECT * FROM Products where prod_type = 'Drink'")
+    myresult = cursor.fetchall()
+    print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
+# -------------------------------------------------
+def print_food_db():
+    cursor.execute("SELECT * FROM Products where prod_type = 'Food'")
+    myresult = cursor.fetchall()
+    print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
 
 # --------------------------------------------------
 def print_products_table ():

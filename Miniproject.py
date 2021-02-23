@@ -22,6 +22,7 @@ connection = pymysql.connect(
 cursor = connection.cursor()
 
 
+
 banner()
 print('Loading main menu...')
 sleep(3)

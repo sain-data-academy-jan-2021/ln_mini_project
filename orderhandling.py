@@ -129,3 +129,26 @@ def add_courier_to_order(connection):
             continue
 
 add_courier_to_order(connection)
+=======
+
+def update_order_status_in_db(connection):
+    print_orders_from_db(connection)
+    existing_ids = [id[0] for id in execute_sql_select(connection, 'select order_id from orders')]
+    while True:
+        id = int(input("Which order's status would you like to update?"))
+        if id in existing_ids:
+            updated_order_status = input("What is the new status of this order?")
+            execute_sql(connection, f'UPDATE orders SET status = "{updated_order_status}"')
+            break
+
+def add_courier_to_order(connection):
+    print_couriers_from_db()
+    existing_ids = []
+    for row in execute_sql_select(connection, 'SELECT courier_id FROM couriers'):
+        existing_ids.append(row[0])
+    while True: 
+        pick_courier = int(input("What courier would you like to choose?"))
+        if pick_courier in existing_ids:
+            return pick_courier
+        else:
+            continue
