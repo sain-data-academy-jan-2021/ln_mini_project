@@ -1,6 +1,7 @@
 import os
 
 def main_menu_input():
+While True:
     os.system('clear')
     main_menu = (
         f' 0 - Exit app \n 1 - View product menu \n 2 - View courier menu \n 3 - View order menu')
