@@ -2,6 +2,8 @@ import pymysql
 from dotenv import load_dotenv
 import os
 from tabulate import tabulate
+from orderhandling import *
+from display_functions import *
 
 load_dotenv()
 host = os.environ.get("mysql_host")
@@ -18,6 +20,12 @@ connection = pymysql.connect(
 )
 cursor = connection.cursor()
 
+
+def execute_sql_select(connection, sql):
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    cursor.close()
+    return cursor.fetchall()
 
 def delete_entry(table, item_type, column): #item_type = product/item
     while True:
@@ -73,79 +81,111 @@ def add_courier ():
     cursor.close()
     connection.commit()
 # -----------------------------------------------
-def print_couriers_from_db(): 
-    cursor = connection.cursor()
-    cursor.execute( f'SELECT * FROM Products')
-    rows = cursor.fetchall()
-    for row in rows:
-        print(f'Courier ID: {str(row[0])}, Courier Name: {row[1]}, Delivery Method: {row[2]}, Contact number: {row[3]}')
-# -----------------------------------------------
-def print_products__from_db():
-    cursor = connection.cursor()
-    cursor.execute( f'SELECT * FROM Products')
-    rows = cursor.fetchall()
-    for row in rows:
-        print(f'Product ID: {str(row[0])}, Product Name: {row[1]}, Product Type: {row[2]}, Unit: {row[3]}, Price: {row[4]}')
-    choice = input('Press 0 to return to main menu')
-# -----------------------------------------------
-def update_entry(table, item_type, column1, column2): #table, item_type, need error handlinh
-    while True:
-        old_item = input(f'Which {item_type} from {table} do you want to update').title()
-        update = input(f'What do you want to update {old_item} to?').title()
-
-        cursor = connection.cursor()
-        cursor.execute(f'UPDATE {table} SET {column1} = "{update}" WHERE {column2} = "{old_item}"')
-        print(cursor.rowcount, "record(s) affected")
-        print(f'Kindly update the properties of {update}')
-
-        if table == 'Products':
-            update1 = str(input(f'Press 1 if {update} is classed as a food, press 2 if {update} is classed as a drink.'))
-        if update1 == '1':
-            cursor.execute(f'UPDATE {table} SET prod_type = "Food" WHERE {column1} = "{update}"')
-        if update1 == '2':
-            cursor.execute(f'UPDATE {table} SET prod_type = "Drink" WHERE {column1} = "{update}"')
-
-        update2 = input(f'What is the quanity of a single unit of {update}. Include unit measurements')
-        cursor.execute(f'UPDATE {table} SET unit = "{update2}" WHERE {column1} = "{update}"')
-
-        update3 = float(input(f'What is the cost of {update}'))
-        cursor.execute(f'UPDATE {table} SET price = "{update3}" WHERE {column1} = "{update}"')
-
-        
-        cursor.execute(f'SELECT prod_name,prod_type,unit,price FROM {table} WHERE {column1} = "{update}"')
-        newentry = cursor.fetchall()
-        for x in newentry:
-            print(f'New complete updated entry\n {x}')
-        
-        cursor.close()
-        connection.commit()
-        
-        choice = input('Press 0 to return to main menu or any key to continue update another')
-        if choice == '0':
-            main_menu_input()
-            break
-        else:
-            continue
-        
-        if table == 'Couriers':
-            update1 = str(input(f'What is {update}\'s prefered delivered method'))
-            cursor.execute(f'UPDATE {table} SET delivery_method = "{update1}" WHERE {column1} = "{update}"')
-
-        update2 = str(input(f'What is {update}\'s mobile number'))
-        cursor.execute(f'UPDATE {table} SET contact_number = "{update2}" WHERE {column1} = "{update}"')
-
-        cursor.execute(f'SELECT * FROM {table} WHERE {column1} = "{update}"')
-        newentry = cursor.fetchall()
-        for x in newentry:
-            print(f'New complete updated entry:\n {x}')
-
-        cursor.close()
-        connection.commit()
+def update_product_entry():
+    
+    print_products_table()
  
-        choice = input('Press 0 to return to main menu or any key to continue update another')
-        if choice == '0':
-            main_menu_input()
+    existing_prods = [id[0] for id in execute_sql_select(connection, 'select prod_name from Products')]
+    while True:
+        old_item = input(f'Which item from Products do you want to update or press 0 to return to main menu').title()
+        if old_item != '0':
+            update = input(f'What do you want to update {old_item} to?').title()
+            if old_item in existing_prods:
+                cursor = connection.cursor()
+                cursor.execute(f'UPDATE Products SET prod_name = "{update}" WHERE prod_name = "{old_item}"')
+                print(cursor.rowcount, "record(s) affected")
+                print(f'Kindly update the properties of {update}. Skip any properties you do not wish to update by pressing \'s\'  to continue')
+
+                update1 = str(input(f'Press 1 if {update} is classed as a food, press 2 if {update} is classed as a drink.'))
+                if update1 == '1':
+                    cursor.execute(f'UPDATE Products SET prod_type = "Food" WHERE prod_name = "{update}"')
+                if update1 == '2':
+                    cursor.execute(f'UPDATE Products SET prod_type = "Drink" WHERE prod_name = "{update}"')
+                else:
+                    print('Invalid entry. Try again')
+                    continue
+
+                update2 = input(f'What is the quanity of a single unit of {update}. Include unit measurements')
+                if update2 != 's':
+                    cursor.execute(f'UPDATE Products SET unit = "{update2}" WHERE prod_name = "{update}"')
+                else:
+                    pass
+                
+                update3 = input(f'What is the cost of {update}')
+                if update3 == 's':
+                    pass 
+                else:
+                    update3 = float(update3)
+                    cursor.execute(f'UPDATE {table} SET price = "{update3}" WHERE {column} = "{update}"')
+
+                cursor.execute(f'SELECT prod_name,prod_type,unit,price FROM Products WHERE prod_name = "{update}"')
+                newentry = cursor.fetchall()
+                for x in newentry:
+                    print(f'New complete updated entry\n {x}')
+            else: 
+                print(f'{old_item} can not be updated because it does not exist. Please enter an existing product')
+
+            cursor.close()
+            connection.commit()
+
+        else: 
+            # main_menu_input() #see if you can access main menu from outiside function 
             break
+def update_courier_entry(): 
+
+print_courier_table()
+
+
+    while True:
+        old_item = input(f'Which item from Couriers do you want to update or press 0 to return to main menu').title()
+        existing_names = [id[0] for id in execute_sql_select(connection, 'select courier_name from Couriers')
+        ]if old_item != '0':
+            update = input(f'What do you want to update {old_item} to?').title()
+            if old_item in existing_names:
+                cursor = connection.cursor()
+                cursor.execute(f'UPDATE Products SET prod_name = "{update}" WHERE prod_name = "{old_item}"')
+                print(cursor.rowcount, "record(s) affected")
+                print(f'Kindly update the properties of {update}. Skip any properties you do not wish to update by pressing \'s\'  to continue')
+
+                update1 = str(input(f'What is {update}\'s prefered delivered method'))
+    #           cursor.execute(f'UPDATE {table} SET delivery_method = "{update1}" WHERE {column1} = "{update}"')
+                if update2 != 's':
+                    cursor.execute(f'UPDATE Products SET unit = "{update2}" WHERE prod_name = "{update}"')
+                else:
+                    pass
+                
+                update3 = input(f'What is the cost of {update}')
+                if update3 == 's':
+                    pass 
+                else:
+                    update3 = float(update3)
+                    cursor.execute(f'UPDATE {table} SET price = "{update3}" WHERE {column} = "{update}"')
+
+                cursor.execute(f'SELECT prod_name,prod_type,unit,price FROM Products WHERE prod_name = "{update}"')
+                newentry = cursor.fetchall()
+                for x in newentry:
+                    print(f'New complete updated entry\n {x}')
+            else: 
+                print(f'{old_item} can not be updated because it does not exist. Please enter an existing product')
+
+            cursor.close()
+            connection.commit()
+
+        else: 
+            # main_menu_input() #see if you can access main menu from outiside function 
+            break
+
+    #  
+    # update2 = str(input(f'What is {update}\'s mobile number'))
+    # cursor.execute(f'UPDATE {table} SET contact_number = "{update2}" WHERE {column1} = "{update}"')
+
+    # cursor.execute(f'SELECT * FROM {table} WHERE {column1} = "{update}"')
+    # newentry = cursor.fetchall()
+    # for x in newentry:
+    #     print(f'New complete updated entry:\n {x}')
+
+    # cursor.close()
+    # connection.commit()
         else:
             continue
 # ----------------------------
@@ -159,3 +199,28 @@ def print_food_db():
     myresult = cursor.fetchall()
     print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
 
+# --------------------------------------------------
+def print_products_table ():
+    cursor = connection.cursor()
+    cursor.execute( f'SELECT * FROM Products')
+    myresult = cursor.fetchall()
+    print(tabulate(myresult,headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
+# -----------------------------------------------
+def print_courier_table (): 
+    cursor = connection.cursor()
+    cursor.execute( f'SELECT * FROM Couriers')
+    myresult = cursor.fetchall()
+    print(tabulate(myresult,headers=['Courier ID', 'Courier Name','Delivery Method','Contact Number'], tablefmt='psql'))
+# -----------------------------------------------
+def print_drinks_db():
+    cursor.execute("SELECT * FROM Products where prod_type = 'Drink'")
+    myresult = cursor.fetchall()
+    print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
+# -------------------------------------------------
+def print_food_db():
+    cursor.execute("SELECT * FROM Products where prod_type = 'Food'")
+    myresult = cursor.fetchall()
+    print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
+
+
+update_product_entry()
