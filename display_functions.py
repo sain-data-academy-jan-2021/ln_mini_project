@@ -1,21 +1,31 @@
 import os
 
-def main_menu_input():
-While True:
+def clear_terminal(): 
     os.system('clear')
+
+def main_menu_input():
+    clear_terminal()
+    banner()
+    print(f'\n\nMain menu')
+    print('------------------------------------------------------')
     main_menu = (
         f' 0 - Exit app \n 1 - View product menu \n 2 - View courier menu \n 3 - View order menu')
     print(main_menu)
-    option = input("\n\nWhat would you like to do? Choose an option number")
+    option = str(input("\n\nWhat would you like to do? Choose an option number"))
     return option
 #-------------------------------------------------
 def menu_input(field): 
+    clear_terminal()
+    banner()
     print(f'\n\n{field} menu')
     print('------------------------------------------------------')
-    menu =(f' 0 - Return back to main menu \n 1 - View all {field}s \n 2 - Create new {field} entry \n 3 - Update {field} \n 4 - Delete {field}')
+    menu =(f' 0 - Return back to main menu \n 1 - View all {field}s \n 2 - Create new {field} entry \n 3 - Delete {field}')
+    if field == 'Order':
+        menu =(f' 0 - Return back to main menu \n 1 - View all {field}s \n 2 - Create new {field} entry \n 3 - Update {field} status \n 4 - Delete {field}')
     print(menu)
 
-    option = input("\nWhat would you like to do ? Choose an option number")
+
+    option = str(input("\nWhat would you like to do ? Choose an option number"))
     return option
 #-------------------------------------------------
 def exit_app():
