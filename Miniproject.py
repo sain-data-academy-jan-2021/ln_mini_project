@@ -1,6 +1,6 @@
 import os
 from time import sleep
-from funcs_prod_courier import *
+from functions import *
 from orderhandling import *
 from display_functions import *
 import pymysql
@@ -25,62 +25,65 @@ cursor = connection.cursor()
 
 banner()
 print('Loading main menu...')
-sleep(3)
+sleep(1)
 
-option = main_menu_input()
-if option == '1':
-    option = ''
-    option = menu_input('Product')
+option = ''
+while True: 
+    option = main_menu_input()
     if option == '1':
-        print_products__from_db()
-    elif option == '2':
-        add_entry ('Products')
-    elif option == '3':
-        update_entry('Products', 'product', 'prod_name', 'prod_name')
-    elif option == '4':
-        delete_entry('Products', 'product', 'prod_name') 
-    elif option == '0':
-        main_menu_input()
-    else:
-        print('Invalid selection. Please choose again')
+        while True:
+            option = ''
+            option = menu_input('Product')
+            if option == '1':
+                print_whole_table("Products",'product_id')
+            elif option == '2':
+                add_product()
+            elif option == '3':
+                delete_entry('Products', 'product', 'prod_name') 
+            elif option == '0':
+                break
+            else:
+                print('Invalid selection. Please choose again')
 
-elif option == '2':
-    option = ''
-    option = menu_input('Courier')
-    if option == '1':
-        print_couriers_from_db()
     elif option == '2':
-        add_entry ('Products')
+        while True:
+            option = ''
+            option = menu_input('Courier')
+            if option == '1':
+                print_whole_table("Couriers", "courier_id")
+            elif option == '2':
+                add_courier ()
+            elif option == '3':
+                delete_entry('Couriers', 'courier', 'courier_name')
+            elif option == '0':
+                break
+            else:
+                print('Invalid selection. Please choose again')
+
+            
+
     elif option == '3':
-        update_entry('Couriers', 'courier', 'courier_name', 'courier_name')
-    elif option == '4':
-        delete_entry('Couriers', 'courier', 'courier_name')
-    elif option == '0':
-        main_menu_input()
+            while True:
+                option = ''
+                os.system('clear')
+                option = menu_input('Order')
+                if option == '1':
+                    print_orders_from_db(connection)   
+                elif option == '2':
+                    add_order_database(connection)
+                elif option == '3':
+                    update_order_status_in_db(connection)
+                elif option == '4':
+                    delete_order_in_db(connection)
+                elif option == '0':
+                    break
+                else:
+                    print('Invalid selection. Please choose again')   
+
+    elif option == '0':     
+            print("Exiting..")
+            exit_app()
+
     else:
-        print('Invalid selection. Please choose again')
+        print('Invalid Selection. Please select either option: 1, 2 or 3.')
         
-
-elif option == '3':
-        option = ''
-        option = menu_input('order')
-        if option == '1':
-            print_orders_from_db(connection)
-        elif option == '2':
-            add_order_database(connection)
-        elif option == '3':
-            update_order_details(connection) 
-        elif option == '4':
-            delete_order_in_db(connection)
-        elif option == '0':
-            main_menu_input()
-        else:
-            print('Invalid selection. Please choose again')   
-
-elif option == '0':     
-        print("Exiting..")
-        exit_app()
-
-else:
-    print('Invalid Selection. Please select either option: 1, 2 or 3.')
-    
