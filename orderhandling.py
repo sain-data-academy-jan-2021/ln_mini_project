@@ -19,21 +19,21 @@ connection = pymysql.connect(
 )
 cursor = connection.cursor()
 
-#-------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def execute_sql(connection, sql):
     cursor = connection.cursor()
     cursor.execute(sql)
     cursor.close()
     connection.commit()
-#-------------------------------------------------
+##-------------------------------------------------------------------------------------------------------------------------------------------------
 def execute_sql_select(connection, sql):
     cursor = connection.cursor()
     cursor.execute(sql)
     cursor.close()
     return cursor.fetchall()
-#-------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def choose_order_items(connection): #done
-
+    
     print_whole_table("Products","prod_type")
 
     existing_ids = [id[0] for id in execute_sql_select(connection,'SELECT product_id FROM Products')]
@@ -44,32 +44,40 @@ def choose_order_items(connection): #done
     total_cost = 0
     final_basket = []
     while id !=0:
-        id = int(input('Please choose the ID to order. When you have chosen all press 0:'))
+        clear_terminal()
+        print_whole_table("Products","prod_type")
+        try:
+            id = int(input('Please choose the ID to order. When you have chosen all press 0:'))
+         
+            if id not in existing_ids and id !=0: 
+                print('Invalid ID. Please try again')
+
+            elif id in existing_ids:
         
-        if id not in existing_ids and id !=0: 
-            print('Invalid ID. Please try again')
+                quantity = int(input('How many do you want: ')) 
+                myresult = execute_sql_select(connection,f'SELECT prod_name, unit, price FROM Products where product_id = "{id}"')
+                for x in myresult:
+                    basket = (f'Product: {x[0]}, Unit: {x[1]}, Quantity: {quantity}, Price: {x[2]* quantity}')
 
-        elif id in existing_ids:
-            quantity = int(input('How many do you want')) 
-            myresult = execute_sql_select(connection,f'SELECT prod_name, unit, price FROM Products where product_id = "{id}"')
-            for x in myresult:
-                basket = (f'Product: {x[0]}, Unit: {x[1]}, Quantity: {quantity}, Price: {x[2]* quantity}')
+                    price = x[2] * quantity
 
-                price = x[2] * quantity
+                total_cost = total_cost + price
+                chosen_products_ids.extend([id] * quantity )
+                final_basket.append(basket)
 
-            total_cost = total_cost + price
-            chosen_products_ids.extend([id] * quantity )
-            final_basket.append(basket)
+        except ValueError:
+            print('Please enter a number') 
 
-    print('-' * len(basket))
+    # print('-' * len(basket))
     print('Order Summary:\n') 
-    print('-' * len(basket))
+    # print('-' * len(basket))
     for x in final_basket: 
         print(x)      
     print(f'Your order costs £{total_cost}\n')      
     return chosen_products_ids, total_cost       
-#------------------------------------------------- 
-def add_to_order_product(connection): #done
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+def add_to_order_product(connection):
+ #done
     cursor = connection.cursor()
     order_id = execute_sql_select(connection,'SELECT MAX(order_id) FROM Orders')[0][0]
     chosen_products_ids = choose_order_items(connection)
@@ -79,8 +87,9 @@ def add_to_order_product(connection): #done
     connection.commit()
 
     return chosen_products_ids
-#------------------------------------------------- 
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def print_orders_from_db(connection):
+
     clear_terminal()
     banner()
     cursor = connection.cursor()
@@ -88,6 +97,9 @@ def print_orders_from_db(connection):
     myresult = cursor.fetchall()
     print(tabulate(myresult, headers=['Order ID', 'Status','Name','Courier ID', 'Address','Phone', 'Items Purchased', 'Total Cost'], tablefmt='psql'))
 
+    item_breakdown(connection)
+
+    print('\n')
 #-------------------------------------------------
 def delete_order_in_db(connection): #done
     
@@ -112,8 +124,7 @@ def delete_order_in_db(connection): #done
         else: 
             print("This not a valid order number. Please choose from the order_id list")
             continue
-
-#-------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 # def update_order_details(connection):
 #     existing_ids = [id[0] for id in execute_sql_select(connection, 'select order_id from Orders')]
 #     chosen_products = [id[0] for id in execute_sql_select(connection, 'select product_id from Products')]
@@ -146,16 +157,14 @@ def delete_order_in_db(connection): #done
 #             continue
 #         elif updated_items == 0:
 #             break
-
-#-------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def add_order_database(connection):#done
-    clear_terminal()
-    banner()
-    print('Tell us about yourself...\n')
 
     while True:
-        
-        name = (input('Please enter your full name to start you order or press 0 to cancel\n')).capitalize()
+        clear_terminal()
+        banner()
+        print('Tell us about yourself...\n')
+        name = (input('Please enter your full name to start you order or press 0 to return to previous menu\n')).capitalize()
         if name != 0 and len(name) <=1 :
             break
         email = str(input('Please enter your email address\n'))
@@ -182,15 +191,15 @@ def add_order_database(connection):#done
                 break
             else: 
                 continue
-
-
-#-------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def update_order_status_in_db(connection):#done
+    
     # clear_terminal()
     # banner()
 
     # print('Here are our existing orders...')
     # print_orders_from_db(connection)
+
     existing_ids = [id[0] for id in execute_sql_select(connection, 'select order_id from Orders')]
     status = ['Preparing','Cancelled','Completed']
     id = ''
@@ -207,7 +216,7 @@ def update_order_status_in_db(connection):#done
             if updated_order_status in status:
                 execute_sql(connection, f'UPDATE Orders SET status = "{updated_order_status}" where order_id = {id}\n')
                 print(f'Thank you for updating the status of Order {id} to {updated_order_status}\n')
-                sleep(3)
+                sleep(2)
                 
             else:
                 print('Please enter a valid status')
@@ -215,7 +224,7 @@ def update_order_status_in_db(connection):#done
         else: 
             print('Please enter a valid order number')
             continue
-#-------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def add_courier_to_order(connection): #done
     clear_terminal()
     banner()
@@ -231,4 +240,31 @@ def add_courier_to_order(connection): #done
             return pick_courier
         else:
             continue
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+def item_breakdown(connection):
 
+    joins = execute_sql_select(connection, 
+    '''SELECT o.name AS 'Customer Name',
+    o.address as Address,
+    o.phone as 'Phone Number',
+    c.courier_name as Courier,
+    o.status as Status,
+    o.order_id as 'Order ID',
+    GROUP_CONCAT(p.prod_name separator ', ') AS Items 
+    FROM Orders o
+    LEFT JOIN Order_product op 
+    ON op.order_id = o.order_id
+    LEFT JOIN Products p 
+    ON op.product_id = p.product_id
+    LEFT JOIN Couriers c 
+    ON o.courier_id = c.courier_id
+    GROUP BY o.order_id;''')
+
+    breakdown = []
+
+    order = int(input('Enter an order ID to view the breakdown of items ordered or press 0 to skip\n\n'))
+
+    for x in joins:
+        if x[5] == order:
+            print(x[6])
+#-------------------------------------------------------------------------------------------------------------------------------------------------
