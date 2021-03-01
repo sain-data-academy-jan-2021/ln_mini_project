@@ -22,21 +22,22 @@ cursor = connection.cursor()
 
 def clear_terminal(): 
     os.system('clear')
-
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def execute_sql(connection, sql):
     cursor = connection.cursor()
     cursor.execute(sql)
     cursor.close()
     connection.commit()
-#---------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def execute_sql_select(connection, sql):
     cursor = connection.cursor()
     cursor.execute(sql)
     cursor.close()
     return cursor.fetchall()
-# --------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def print_whole_table (table, column):
     clear_terminal()
+    banner()
     cursor = connection.cursor()
     cursor.execute(f'SELECT * FROM {table} ORDER BY {column}')
     if table == 'Products':
@@ -54,7 +55,7 @@ def print_drinks_db():
     print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
     cursor.close()
     connection.close()
-# -------------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def print_food_db():
     cursor = connection.cursor()
     cursor.execute("SELECT * FROM Products where prod_type = 'Food'")
@@ -62,68 +63,77 @@ def print_food_db():
     print(tabulate(myresult, headers=['Product ID', 'Product Name','Product Type','Unit','Price'], tablefmt='psql'))
     cursor.close()
     connection.close()
-
-
-def delete_entry(table, item_type, column): #item_type = product/item CORRECT
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+def sub_menu(item):
+    user_input = input(f"What would you like to do now? \nReturn to {item} menu [1] \nExit app [ENTER]")
+    if user_input == "1":
+        return
+    else:
+        display_functions.exit_app()
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+def delete_entry(table, item_type, column):
+  
     clear_terminal()
     banner()
-    print('Here our our existing products..')
-
+    print(f'Here are our existing {table}..')
     print_whole_table(f'{table}',f'{column}')
 
     while True:
-        delete_item = str(input(f'Which {item_type} would you like to delete from {table}? Press 0 to return to previous menu')).title()
+
+        delete_item = str(input(f'Enter the name of the {item_type} you would like to delete from {table}? Or Press 0 to return to previous menu\n')).title()
+        print(delete_item)
         if delete_item !='0':
-            item_check = execute_sql_select(connection, f'select * from {table} WHERE {column} = "{delete_item}"')
+            item_check = execute_sql_select(connection, f'select * from {table} WHERE {column} = "{delete_item}"\n')
 
             if len(item_check) == 0:
-                print(f'{delete_item} does not exist and cannot be deleted. Please try again')
+                print('Item entered above does not exist and cannot be deleted. Please try again and enter an existingname')
                 continue
 
             else:
-                cursor = connection.cursor() 
-                cursor.execute(f'DELETE FROM {table} WHERE {column} = "{delete_item}"')
-                print(cursor.rowcount, "record(s) deleted")
-                cursor.close()
-                connection.commit()
-                continue
+                choice = input(f'Are you sure you want to delete {delete_item}. Enter Yes or No').capitalize()
+                if choice == 'Yes':
+                    execute_sql(connection, f'DELETE FROM {table} WHERE {column} = "{delete_item}"')
+                    continue
+                if choice == 'No':
+                    continue
         
         if delete_item == '0':
             break
-                
-# -----------------------------------------------
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def add_product(): 
-    clear_terminal()  
-
     while True:
+        clear_terminal()  
         print('Here our our existing products..')
         print_whole_table("Products", "prod_type")
-        add_type = str(input(f'What type of item would you like to add to Products? Press 1 for Drinks or 2 for Food'))
-        if add_type == '2' :
-            add_type = 'Food'
+        add_type = str(input(f'What type of item would you like to add to Products? Press 1 for Drinks or 2 for Food\n'))
+        cursor = connection.cursor()
         if add_type == '1' :
             add_type = 'Drink'
+        elif add_type == '2' :
+            add_type = 'Food'
+       
         else:
             print('Invalid type entered. Please retry and either enter 1 or 2!')
             sleep(2)
             continue 
 
-        new_item = input(f'What item would you like to add to our {add_type} database?').title()
+        new_item = input(f'What item would you like to add to our {add_type} database?\n').title()
         new_item_cost = float(input(f'How much does a unit of {new_item} cost?'))
-        new_unit = str(input(f'What is the quanity of a single unit of {new_item}. Include units'))
+        new_unit = str(input(f'What is the quanity of a single unit of {new_item}. Include units\n'))
         cursor = connection.cursor()
         cursor.execute(F'INSERT INTO Products (prod_name, prod_type, unit, price) VALUES ("{new_item}","{add_type}","{new_unit}",{new_item_cost})')
-
-        print(cursor.rowcount, "record inserted. New ID:",cursor.lastrowid)
-        cursor.close()
         connection.commit() 
+        print(cursor.rowcount, "record inserted. New ID:",cursor.lastrowid)
+        
+        
 
         choice = str(input('Do you want to add another item? Press any key to continue or 0 to return to previous menu'))
         if choice == '0':
             break
         else:
             continue
-# -----------------------------------------------
+    cursor.close()
+#-------------------------------------------------------------------------------------------------------------------------------------------------
 def add_courier():
     cursor = connection.cursor()
     clear_terminal()
@@ -149,60 +159,65 @@ def add_courier():
             continue
 
     cursor.close()
-
-# -----------------------------------------------
-def update_product_entry():
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+def update_product_entry(table):
     
-    print_products_table()
  
     existing_prods = [id[0] for id in execute_sql_select(connection, 'select prod_name from Products')]
     while True:
-        old_item = input(f'Which item from Products do you want to update or press 0 to return to main menu').title()
+        clear_terminal()
+        banner ()
+        cursor = connection.cursor()
+        print_whole_table("Products",'product_id')
+        old_item = input(f'Enter the name from Products you want to update or press 0 to return to main menu\n').title()
         if old_item != '0':
-            update = input(f'What do you want to update {old_item} to?').title()
+            update = input(f'What do you want to update {old_item} to?\n').title()
             if old_item in existing_prods:
-                cursor = connection.cursor()
                 cursor.execute(f'UPDATE Products SET prod_name = "{update}" WHERE prod_name = "{old_item}"')
                 print(cursor.rowcount, "record(s) affected")
-                print(f'Kindly update the properties of {update}. Skip any properties you do not wish to update by pressing \'s\'  to continue')
-
-                update1 = str(input(f'Press 1 if {update} is classed as a food, press 2 if {update} is classed as a drink.'))
+    
+                update1 = str(input(f'Press 1 if {update} is classed as a food, press 2 if {update} is classed as a drink.\n'))
                 if update1 == '1':
                     cursor.execute(f'UPDATE Products SET prod_type = "Food" WHERE prod_name = "{update}"')
-                if update1 == '2':
+                elif update1 == '2':
                     cursor.execute(f'UPDATE Products SET prod_type = "Drink" WHERE prod_name = "{update}"')
                 else:
                     print('Invalid entry. Try again')
                     continue
-
-                update2 = input(f'What is the quanity of a single unit of {update}. Include unit measurements')
+                
+                print(f'Kindly update the properties of {update}. Skip any properties you do not wish to update to continue\n')
+                
+                update2 = input(f'What is the quanity of a single unit of {update}. Include unit measurements\n')
                 if update2 != 's':
                     cursor.execute(f'UPDATE Products SET unit = "{update2}" WHERE prod_name = "{update}"')
                 else:
-                    pass
+                    cursor.execute(f'UPDATE Products SET unit = "300ml" WHERE prod_name = "{update}"')
                 
-                update3 = input(f'What is the cost of {update}')
+                update3 = input(f'What is the cost of {update}\n')
                 if update3 == 's':
                     pass 
                 else:
                     update3 = float(update3)
-                    cursor.execute(f'UPDATE {table} SET price = "{update3}" WHERE {column} = "{update}"')
+                    cursor.execute(f'UPDATE {table} SET price = "{update3}" WHERE prod_name = "{update}"')
 
-                cursor.execute(f'SELECT prod_name,prod_type,unit,price FROM Products WHERE prod_name = "{update}"')
-                newentry = cursor.fetchall()
-                for x in newentry:
-                    print(f'New complete updated entry\n {x}')
+                    cursor.execute(f'SELECT prod_name,prod_type,unit,price FROM Products WHERE prod_name = "{update}"')
+                    newentry = cursor.fetchall()
+                    for x in newentry:
+                        print(f'New complete updated entry\n {x}')
+                        sleep(3)
+                    
             else: 
                 print(f'{old_item} can not be updated because it does not exist. Please enter an existing product')
+                sleep (3)
 
-            cursor.close()
-            connection.commit()
+                
+                connection.commit()
 
         else: 
-            main_menu_input() #see if you can access main menu from outiside function 
+            cursor.close()
             break
-
-# def update_courier_entry(): #loop not working second time
+#-------------------------------------------------------------------------------------------------------------------------------------------------
+def update_courier_entry(): #loop not working second time
     
     existing_ids = [id[0] for id in execute_sql_select(connection, 'SELECT courier_id FROM Couriers')]
     
@@ -236,7 +251,7 @@ def update_product_entry():
                 print(f'{id} can not be updated because this entry does not exist. Please enter an existing product')
                 continue  
 
-            update2 = str(input(f'Please insert an updated number or press Enter to skip'))
+            update2 = str(input(f'Please insert an updated phone number or press Enter to skip'))
             if len(update2) == 0:
                 connection.commit()
                 pass
@@ -250,9 +265,12 @@ def update_product_entry():
             newentry = cursor.fetchall()
             for x in newentry:
                 print(f'New complete updated entry\n {x}')
+                sleep(3)
         
             cursor.close()
             
         except: ValueError
         print('Please insert a number as valid ID')
-        
+
+
+

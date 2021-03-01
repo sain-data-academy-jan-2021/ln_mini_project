@@ -19,16 +19,13 @@ def menu_input(field):
     banner()
     print(f'\n\n{field} menu')
     print('------------------------------------------------------')
-    menu =(f' 0 - Return back to main menu \n 1 - View all {field}s \n 2 - Create new {field} entry \n 3 - Delete {field}')
-    if field == 'Order':
-        menu =(f' 0 - Return back to main menu \n 1 - View all {field}s \n 2 - Create new {field} entry \n 3 - Update {field} status \n 4 - Delete {field}')
+    menu =(f' 0 - Return back to main menu \n 1 - View all {field}s \n 2 - Create new {field} entry \n 3 - Update status of {field}  \n 4 - Delete {field}')
     print(menu)
-
-
     option = str(input("\nWhat would you like to do ? Choose an option number"))
     return option
 #-------------------------------------------------
 def exit_app():
+    clear_terminal()
     border = len('Thanks for stopping by Jammed Packed Lunches! See you soon.') * '*'
     print('\n' + border)
     print('Thanks for stopping by JAM\'D PACKED LUNCHES! See you soon.')

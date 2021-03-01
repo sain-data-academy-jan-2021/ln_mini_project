@@ -284,3 +284,20 @@ if option == '1':
 # elif option == '0':     
 #         print("Exiting..")
 #         exit_app()
+
+
+
+SELECT o.name AS 'Customer Name',
+ o.address as Address,
+ o.phone as 'Phone Number',
+ o.name as Courier,
+ o.status as Status,
+ GROUP_CONCAT(p.prod_name separator ', ') AS Items 
+FROM Orders o
+LEFT JOIN Order_product op 
+ ON op.order_id = o.order_id
+LEFT JOIN Products p 
+ ON op.product_id = p.product_id
+LEFT JOIN Couriers c 
+ ON o.courier_id = c.courier_id
+GROUP BY o.order_id;
