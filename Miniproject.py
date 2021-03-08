@@ -92,5 +92,5 @@ while True:
             exit_app()
 
     else:
-        print('Invalid Selection. Please select either option: 1, 2 or 3.')
-    
+        print('Invalid Selection. Please re select either option: 1, 2 or 3.')
+        
