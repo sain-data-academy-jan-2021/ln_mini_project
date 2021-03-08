@@ -11,7 +11,7 @@ class TestFunctions(unittest.TestCase):
     # -------------------------------------------------------------------- 
     @patch('orderhandling.execute_sql_select') 
     @patch('builtins.input')
-    def test_choose_order_items(self, mock_input, mock_execute):
+    def test_choose_normalamount_order_items(self, mock_input, mock_execute):
         #Assemble
         mock_execute.side_effect = [((4,), (9,), (12,), (13,)), (('Carrot cake', 'slice', 2.29),), (('Coke', '500ml', 0.60),)]
         # connection = None
@@ -60,7 +60,7 @@ class TestFunctions(unittest.TestCase):
      
     @patch('orderhandling.execute_sql_select')                        
     @patch('builtins.input')
-    def test_choose_str_order_items(self, mock_input, mock_execute):
+    def test_choose_strquantity_order_items(self, mock_input, mock_execute):
         #Assemble
         mock_execute.side_effect = [((4,), (9,), (12,), (13,)), (('Carrot cake', 'slice', 2.29),)]
         # connection = None
